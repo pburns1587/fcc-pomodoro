@@ -7,7 +7,7 @@ TODO: Create Countdown Clock
     DONE: Start
     DONE: Tick
     DONE: Stop
-    TODO: Reset
+    DONE: Reset
 
 TODO: Basic UI
     TODO: Current time display
