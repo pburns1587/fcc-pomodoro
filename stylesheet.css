@@ -1,0 +1,8 @@
+.card-text {
+    font-size: 36px;
+}
+
+#rest_plus, #rest_minus, #work_plus, #work_minus {
+    font-weight: bold;
+    font-size: 16px;
+}

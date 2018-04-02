@@ -6,104 +6,224 @@ TODO: Create Countdown Clock
     DONE: Set
     DONE: Start
     DONE: Tick
-    DONE: Stop
     DONE: Reset
 
 TODO: Basic UI
-    TODO: Current time display
-    TODO: Set/Start/Stop/Reset button
-    TODO: Click Handler
-    TODO: Work/Rest Time Set Value Inputs/buttons   
+    DONE: Current time display
+    DONE: Work/Rest Time Set Value Inputs/buttons 
+    DONE: Set/Start/Reset button
 
 TODO: Build Pomodoro Clock (2 Countdown Clocks Together)
-    TODO: When work ends, start rest, reset work
-    TODO: When rest ends, start work, reset rest
+    DONE: When work ends, start rest
+    DONE: When rest ends, start work
+    DONE: Reset each clock on expiry
 
 TODO: Bells/whistles
     TODO: Alert sound
-    TODO: Quick start buttons (25/5, 50/10, 9/1)
+    DONE: Quick start buttons (25/5, 50/10, 10/1)
 
 TODO: Further UI
-    TODO: Clock circle, ticks away around the clock face
-    TODO: Previous Completed Cycles window
-    TODO: Pause grays out clock with button on top to restart
-
+    DONE: Clocks side by side
+    TODO: Active highlighted, stopped faded
 */
 
-//Clock constructor
-function Clock(minutes, seconds) {
-    this.minutes = minutes;
-    this.seconds = seconds;
+let counter;
+
+function PomodoroClock(duration, clockType) {
     this.running = false;
-    this.initMinutes = minutes;
-    this.initSeconds = seconds;
+    this.duration = duration;
+    this.remaining = duration; //time left in sec
+    this.tickFtns = [];
+    this.obj = PomodoroClock.parse(duration);
+    this.lastDuration = duration;
+    this.counterpart; //counterpart Rest or Work Clock
+    this.clockType = clockType; //WORK or REST
+}
 
-    this.tickTock = function () {
-        if (this.running) {
-            console.log("TICK" + this.minutes + this.seconds);
-            if (this.minutes <= 0 && this.seconds <= 0) {
-                //Time's up
-                this.running = false;
-                alert("Time's up!");
-            } else if (this.minutes > 0 && this.seconds === 0) {
-                //Decrement minutes
-                this.minutes--;
-                //Flip seconds to 59
-                this.seconds = 59;
-            } else {
-                //Decrement minutes
-                this.seconds--;
-            }
-        } else {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
+PomodoroClock.prototype.onTick = function (ftn) { //pass in a function
+    if (typeof ftn === 'function') { //if arg is a function
+        this.tickFtns.push(ftn); //add it to list of tick functions
+    }
+    return this;
+};
+
+PomodoroClock.prototype.start = function () {
+    if (this.running || this.counterpart.running) { //if anything is running, don't do anything
+        return;
+    }
+
+    console.log("START: " + this);
+
+    this.running = true;
+
+    let start = Date.now();
+    let that = this;
+
+    //init
+    that.obj = PomodoroClock.parse(that.remaining); //returns min/sec at this moment to PomodoroClock object
+    that.tickFtns.forEach(function (ftn) {
+        ftn.call(this, that.obj.minutes, that.obj.seconds, that.clockType); //call each function in tickFtns, passing minutes and seconds to each
+    }, that);
+
+    counter = setInterval(timer, 500);
+    function timer() {
+        that.remaining = that.duration - (((Date.now() - start) / 1000) | 0);
+        if (that.remaining <= 0) {
+            that.remaining = 0;
+            clearInterval(counter);
+            that.running = false;
+            that.reset();
         }
-    };
+        that.obj = PomodoroClock.parse(that.remaining); //returns min/sec at this moment to PomodoroClock object
+        that.tickFtns.forEach(function (ftn) {
+            ftn.call(this, that.obj.minutes, that.obj.seconds, that.clockType); //call each function in tickFtns, passing minutes and seconds to each
+        }, that);
+        if (!that.running) { //if expired
+            return that.counterpart.start(); //start counterpart clock
+        }
+    }
+};
 
-    this.startTime = function () {
-        this.running = true;
-        this.intervalId = setInterval(this.tickTock.bind(this), 1000);
+PomodoroClock.parse = function (seconds) {
+    return {
+        'minutes': (seconds / 60) | 0,
+        'seconds': (seconds % 60) | 0
     };
+};
 
-    this.time = function () {
-        return this.minutes + ":" + this.seconds
-    };
+//Stop timing
+PomodoroClock.prototype.stop = function () {
+    if (!this.running) {
+        return;
+    }
 
-    this.stopTime = function () {
-        clearInterval(this.intervalId);
+    this.running = false;
+    clearInterval(counter);
+    this.duration = this.remaining;
+};
+
+PomodoroClock.prototype.reset = function () {
+    if (this.lastDuration !== this.remaining || this.counterpart.lastDuration !== this.counterpart.remaining) {
         this.running = false;
-    };
+        clearInterval(counter);
+        this.duration = this.lastDuration;
+        this.remaining = this.duration;
+        this.obj = PomodoroClock.parse(this.duration);
+        return this.counterpart.reset();
+    }
+};
 
-    //Stop timing
-    this.stopTime = function () {
-        clearInterval(this.intervalId);
-        this.running = false;
-    };
+PomodoroClock.prototype.set = function (seconds) {
+    this.running = false;
+    clearInterval(counter);
+    console.log('set: ' + seconds);
+    this.lastDuration = seconds;
+    this.duration = seconds;
+    this.remaining = seconds;
+    this.obj = PomodoroClock.parse(seconds);
+};
 
-    //Reset existing clock object to initial settings
-    this.resetTime = function () {
-        this.minutes = this.initMinutes;
-        this.seconds = this.initSeconds;
-        this.running = false;
-    };
-
-    this.setTime = function (setMinutes, setSeconds) {
-        this.minutes = setMinutes;
-        this.seconds = setSeconds;
-        this.initMinutes = setMinutes;
-        this.initSeconds = setSeconds;
-    };
+//Start counterpart, reset current on expiry
+PomodoroClock.prototype.expire = function () {
 
 }
 
-var testClock = new Clock(0, 15);
+window.onload = function () {
+    let workDisplay = document.querySelector('#clock_text');
+    let workClock = new PomodoroClock(15, 'WORK');
+    let workClockObj = PomodoroClock.parse(15);
 
-$( "#start" ).click(function() {
-    testClock.startTime();
-});
-$( "#stop" ).click(function() {
-    testClock.stopTime();
-});
-$( "#reset" ).click(function() {
-    testClock.resetTime();
-});
+    let restDisplay = document.querySelector('#rest_clock_text');
+    let restClock = new PomodoroClock(5, 'REST');
+    let restClockObj = PomodoroClock.parse(5);
+
+    let workText = document.querySelector('#work_text');
+    let restText = document.querySelector('#rest_text');
+
+    //Relate the clocks to each other
+    workClock.counterpart = restClock;
+    restClock.counterpart = workClock;
+
+    //Initial clock draw
+    formatWork(workClockObj.minutes, workClockObj.seconds, 'WORK');
+    formatRest(restClockObj.minutes, restClockObj.seconds, 'REST');
+
+    workClock.onTick(formatWork); //Draw clock every tick
+    restClock.onTick(formatRest);
+
+    function formatWork(minutes, seconds, clockType) {
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        workDisplay.textContent = minutes + ':' + seconds;
+        workText.textContent = clockType;
+    }
+
+    function formatRest(minutes, seconds, clockType) {
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        restDisplay.textContent = minutes + ':' + seconds;
+        restText.textContent = clockType;
+    }
+
+    $("#work_plus").click(function () {
+        let setVal = workClock.duration + 60;
+        workClock.set(setVal);
+        formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+    });
+
+    $("#work_minus").click(function () {
+        let setVal = 0;
+        
+        if(workClock.duration >= 60){ // if less than 60, set to 0
+            setVal = workClock.duration - 60;
+        }
+
+        workClock.set(setVal);
+        formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+    });
+
+    $("#rest_plus").click(function () {
+        let setVal = restClock.duration + 60;
+        restClock.set(setVal);
+        formatRest(restClock.obj.minutes, restClock.obj.seconds, 'REST');
+    });
+
+    $("#rest_minus").click(function () {
+        let setVal = 0;
+        
+        if(restClock.duration >= 60){ // if less than 60, set to 0
+            setVal = restClock.duration - 60;
+        }
+
+        restClock.set(setVal);
+        formatRest(restClock.obj.minutes, restClock.obj.seconds, 'REST');
+    });
+
+    $("#start").click(function () {
+        workClock.start();
+    });
+
+    $("#reset").click(function () {
+        workClock.reset();
+        formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+    });
+
+    $("#10_1").click(function () {
+        workClock.set(600);
+        restClock.set(60);
+        formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+        formatRest(restClock.obj.minutes, restClock.obj.seconds, 'REST');
+    });
+
+    $("#25_5").click(function () {
+        workClock.set(1500);
+        restClock.set(300);
+        formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+        formatRest(restClock.obj.minutes, restClock.obj.seconds, 'REST');
+    });
+
+    $("#50_10").click(function () {
+        workClock.set(3000);
+        restClock.set(600);
+        formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+        formatRest(restClock.obj.minutes, restClock.obj.seconds, 'REST');
+    });
+};
