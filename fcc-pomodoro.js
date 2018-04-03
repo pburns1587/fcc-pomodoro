@@ -116,29 +116,26 @@ PomodoroClock.prototype.reset = function () {
 PomodoroClock.prototype.set = function (seconds) {
     this.running = false;
     clearInterval(counter);
-    console.log('set: ' + seconds);
     this.lastDuration = seconds;
     this.duration = seconds;
     this.remaining = seconds;
     this.obj = PomodoroClock.parse(seconds);
 };
 
-//Start counterpart, reset current on expiry
-PomodoroClock.prototype.expire = function () {
-
-}
-
 window.onload = function () {
     let workDisplay = document.querySelector('#clock_text');
-    let workClock = new PomodoroClock(15, 'WORK');
-    let workClockObj = PomodoroClock.parse(15);
+    let workClock = new PomodoroClock(1500, 'WORK');
+    let workClockObj = PomodoroClock.parse(1500);
 
     let restDisplay = document.querySelector('#rest_clock_text');
-    let restClock = new PomodoroClock(5, 'REST');
-    let restClockObj = PomodoroClock.parse(5);
+    let restClock = new PomodoroClock(300, 'REST');
+    let restClockObj = PomodoroClock.parse(300);
 
     let workText = document.querySelector('#work_text');
     let restText = document.querySelector('#rest_text');
+
+    let workElem = document.getElementById('clock');
+    let restElem = document.getElementById('rest_clock');
 
     //Relate the clocks to each other
     workClock.counterpart = restClock;
@@ -155,12 +152,20 @@ window.onload = function () {
         seconds = seconds < 10 ? '0' + seconds : seconds;
         workDisplay.textContent = minutes + ':' + seconds;
         workText.textContent = clockType;
+        if (workClock.running) {
+            workElem.classList.add('bg-primary', 'text-white');
+            restElem.classList.remove('bg-primary', 'text-white');
+        }
     }
 
     function formatRest(minutes, seconds, clockType) {
         seconds = seconds < 10 ? '0' + seconds : seconds;
         restDisplay.textContent = minutes + ':' + seconds;
         restText.textContent = clockType;
+        if (restClock.running) {
+            restElem.classList.add('bg-primary', 'text-white');
+            workElem.classList.remove('bg-primary', 'text-white');
+        }
     }
 
     $("#work_plus").click(function () {
@@ -171,8 +176,8 @@ window.onload = function () {
 
     $("#work_minus").click(function () {
         let setVal = 0;
-        
-        if(workClock.duration >= 60){ // if less than 60, set to 0
+
+        if (workClock.duration >= 60) { // if less than 60, set to 0
             setVal = workClock.duration - 60;
         }
 
@@ -188,8 +193,8 @@ window.onload = function () {
 
     $("#rest_minus").click(function () {
         let setVal = 0;
-        
-        if(restClock.duration >= 60){ // if less than 60, set to 0
+
+        if (restClock.duration >= 60) { // if less than 60, set to 0
             setVal = restClock.duration - 60;
         }
 
@@ -203,7 +208,11 @@ window.onload = function () {
 
     $("#reset").click(function () {
         workClock.reset();
+        restClock.reset();
         formatWork(workClock.obj.minutes, workClock.obj.seconds, 'WORK');
+        formatRest(restClock.obj.minutes, restClock.obj.seconds, 'REST');
+        workElem.classList.remove('bg-primary', 'text-white');
+        restElem.classList.remove('bg-primary', 'text-white');
     });
 
     $("#10_1").click(function () {

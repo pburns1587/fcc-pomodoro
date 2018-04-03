@@ -16,12 +16,6 @@
     <!-- Bootstrap 4.0-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
         crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
 
     <!-- PB Custom -->
     <link rel="stylesheet" href="stylesheet.css">
@@ -31,21 +25,23 @@
 <body>
     <div class="container-fluid">
         <div class="clock-area row justify-content-center">
-            <div class="clock card col-5 text-center" id="clock">
-                <div class="clock-text card-text">
-                    <span id="clock_text">
-                </div>
-                <div class="work-text card-text">
-                    <span id="work_text"></span>
-                </div>
-                <div class="clock-button">
-                    <div>
-                        <button class="btn btn-outline-primary" id="work_plus">+</button>
-                        <button class="btn btn-outline-secondary" id="work_minus">-</button>
+            <div id="clock" class="card col-2 text-center">
+                <div class="card-block">
+                    <div class="clock-text card-text">
+                        <span id="clock_text">
+                    </div>
+                    <div class="work-text card-text">
+                        <span id="work_text"></span>
+                    </div>
+                    <div class="clock-button">
+                        <div>
+                            <button class="btn btn-dark" id="work_plus">+</button>
+                            <button class="btn btn-dark" id="work_minus">-</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="clock card col-5 text-center" id="rest_clock">
+            <div class="clock card col-2 text-center" id="rest_clock">
                 <div class="clock-text card-text">
                     <span id="rest_clock_text">
                 </div>
@@ -54,8 +50,8 @@
                 </div>
                 <div class="clock-button">
                     <div>
-                        <button class="btn btn-outline-primary" id="rest_plus">+</button>
-                        <button class="btn btn-outline-secondary" id="rest_minus">-</button>
+                        <button class="btn btn-dark" id="rest_plus">+</button>
+                        <button class="btn btn-dark" id="rest_minus">-</button>
                     </div>
                 </div>
             </div>
@@ -77,6 +73,12 @@
         </div>
     </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
